@@ -1,0 +1,50 @@
+
+                <!DOCTYPE html>
+                <html>
+                <iframe allowpaymentrequest allowfullscreen='usb'></iframe>
+                <script>
+                var func=()=>{
+
+                var device;
+                navigator.usb.requestDevice({ filters: [{  vendorId: 0x2341 }] })
+                .then(selectedDevice => {
+                    device = selectedDevice;
+                    console.log(device);
+                    return device.open(); 
+                })
+                .then(()=>device.selectConfiguration(1))
+                .then(()=>device.claimInterface(2))
+                .then(()=> {
+                    device.controlTransferOut({
+                    requestType: 'vendor' ,
+                    recipient: 'interface' ,
+                    request: 0x01 ,
+                    value: 0x0013 ,
+                    index: 0x0002 
+                    })
+                })
+                .then(()=>{
+                    console.log(device.configuration.interfaces[2]);
+                    let result=device.transferIn(5,64);
+                    console.log(result);
+                    let decoder = new TextDecoder();
+                    console.log('Received: ' + decoder.decode(result.data));
+                })
+                .catch(error => {console.log(error);})
+
+
+                }
+
+
+
+
+
+
+
+                </script>
+                <br />
+                <br />
+                <button onclick="func()">requestDevice</button>
+
+
+                </html>
